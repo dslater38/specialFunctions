@@ -14,8 +14,10 @@
 #include <boost/math/special_functions/expint.hpp>
 #include <boost/math/special_functions/hermite.hpp>
 #include <boost/math/special_functions/zeta.hpp>
-
 #include <vector>
+#include <complex>
+#include "complexHelpers.h"
+
 
 using namespace std;
 using namespace boost::math;
@@ -31,6 +33,63 @@ namespace specFuncs {
 	{
 		return (x->imag == 0.0 && x->real >= 0.0 && x->real == static_cast<double>(static_cast<unsigned int>(x->real)));
 	}
+
+	LRESULT AssocLaguerre(LPCOMPLEXSCALAR result, LPCCOMPLEXSCALAR n, LPCCOMPLEXSCALAR m, LPCCOMPLEXSCALAR x)
+	{
+		//if (x->imag != 0.0 || x->real < 0.0)
+		//{
+		//	return MAKELRESULT(X_DOMAIN_ERROR, 3);
+		//}
+
+		if (!isNonNegativeRealInteger(n))
+		{
+			return MAKELRESULT(DEGREE_DOMAIN_ERROR, 1);
+		}
+
+		if (!isNonNegativeRealInteger(m))
+		{
+			return MAKELRESULT(DEGREE_DOMAIN_ERROR, 2);
+		}
+
+		std::complex<double> y = laguerre(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), std::complex<double>{ x->real, x->imag });
+
+		if (!std::isfinite(y))
+		{
+			return MAKELRESULT(OVERFLOW_, 0);
+		}
+
+		result->imag = y.imag();
+		result->real = y.real();
+		return SUCCESS;
+	}
+
+
+	LRESULT Laguerre(LPCOMPLEXSCALAR result, LPCCOMPLEXSCALAR n, LPCCOMPLEXSCALAR x)
+	{
+		//if (x->imag != 0.0 || x->real < 0.0)
+		//{
+		//	return MAKELRESULT(X_DOMAIN_ERROR, 2);
+		//}
+
+		if (!isNonNegativeRealInteger(n))
+		{
+			return MAKELRESULT(DEGREE_DOMAIN_ERROR, 1);
+		}
+
+		std::complex<double> y = laguerre(static_cast<unsigned int>(n->real), std::complex<double>{x->real, x->imag});
+
+		if (!std::isfinite(y))
+		{
+			return MAKELRESULT(OVERFLOW_, 0);
+		}
+
+		result->imag = y.imag();
+		result->real = y.real();
+		return SUCCESS;
+	}
+
+
+#if 0
 
 	LRESULT AssocLaguerre(LPCOMPLEXSCALAR result, LPCCOMPLEXSCALAR n, LPCCOMPLEXSCALAR m, LPCCOMPLEXSCALAR x)
 	{
@@ -50,6 +109,10 @@ namespace specFuncs {
 		}
 
 		auto y = laguerre(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), x->real);
+
+		std::complex<double> X{ x->real, x->imag };
+		
+		auto yy = laguerre(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), X);
 
 		if (!std::isfinite(y))
 		{
@@ -85,13 +148,14 @@ namespace specFuncs {
 		return SUCCESS;
 	}
 
+#endif // 0
 
 	LRESULT AssocLegendre(LPCOMPLEXSCALAR result, LPCCOMPLEXSCALAR n, LPCCOMPLEXSCALAR m, LPCCOMPLEXSCALAR x)
 	{
-		if (x->imag != 0.0 || x->real < 0.0)
-		{
-			return MAKELRESULT(X_DOMAIN_ERROR, 3);
-		}
+		//if (x->imag != 0.0 || x->real < 0.0)
+		//{
+		//	return MAKELRESULT(X_DOMAIN_ERROR, 3);
+		//}
 
 		if (!isNonNegativeRealInteger(n))
 		{
@@ -103,15 +167,17 @@ namespace specFuncs {
 			return MAKELRESULT(DEGREE_DOMAIN_ERROR, 2);
 		}
 
-		auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), x->real);
+		auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), std::complex<double>{x->real, x->imag});
+
+	// 	auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), x->real);
 
 		if (!std::isfinite(y))
 		{
 			return MAKELRESULT(OVERFLOW_, 0);
 		}
 
-		result->imag = 0.0;
-		result->real = y;
+		result->imag = y.imag();
+		result->real = y.real();
 		return SUCCESS;
 	}
 
