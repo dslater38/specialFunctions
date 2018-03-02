@@ -37,11 +37,16 @@ std::complex<double> operator/(unsigned int n, const std::complex<double> &x)
 bool operator==(const std::complex<double> x, int i)
 {
 	return x.imag() == 0.0 && x.real() == static_cast<double>(i);
+	
 }
 
 bool operator<(const std::complex<double> x, int i)
 {
-	return 
+	return std::abs(x) < static_cast<double>(i);
 }
 
+bool operator>(const std::complex<double> x, int i)
+{
+	return std::abs(x) > static_cast<double>(i);
+}
 #endif // COMPLEXHELPERS_H_INCLUDED__

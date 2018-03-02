@@ -19,6 +19,8 @@
 #include "complexHelpers.h"
 
 
+extern LRESULT Trace(LPCOMPLEXSCALAR result, LPCMCSTRING s);
+
 using namespace std;
 using namespace boost::math;
 
@@ -152,10 +154,10 @@ namespace specFuncs {
 
 	LRESULT AssocLegendre(LPCOMPLEXSCALAR result, LPCCOMPLEXSCALAR n, LPCCOMPLEXSCALAR m, LPCCOMPLEXSCALAR x)
 	{
-		//if (x->imag != 0.0 || x->real < 0.0)
-		//{
-		//	return MAKELRESULT(X_DOMAIN_ERROR, 3);
-		//}
+		if (x->imag != 0.0 || x->real < 0.0)
+		{
+			return MAKELRESULT(X_DOMAIN_ERROR, 3);
+		}
 
 		if (!isNonNegativeRealInteger(n))
 		{
@@ -167,17 +169,17 @@ namespace specFuncs {
 			return MAKELRESULT(DEGREE_DOMAIN_ERROR, 2);
 		}
 
-		auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), std::complex<double>{x->real, x->imag});
+		// auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), std::complex<double>{x->real, x->imag});
 
-	// 	auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), x->real);
+	 	auto y = legendre_p(static_cast<unsigned int>(n->real), static_cast<unsigned int>(m->real), x->real);
 
 		if (!std::isfinite(y))
 		{
 			return MAKELRESULT(OVERFLOW_, 0);
 		}
 
-		result->imag = y.imag();
-		result->real = y.real();
+		result->imag = 0.0; // y.imag();
+		result->real = y; // y.real();
 		return SUCCESS;
 	}
 
@@ -759,6 +761,15 @@ namespace specFuncs {
 			COMPLEX_SCALAR,
 			2,
 			{ COMPLEX_SCALAR, COMPLEX_SCALAR }
+		},
+		{
+			"trace",
+			"s",
+			"trace output to a window",
+			reinterpret_cast<LPCFUNCTION>(&Trace),
+			COMPLEX_SCALAR,
+			1,
+			{ STRING }
 		},
 
 
